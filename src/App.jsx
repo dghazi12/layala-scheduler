@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import {
-  Users, Store, CalendarDays, Wand2, Save, Download, Upload
+  Users, Store, CalendarDays, Wand2, Save, Download, Upload, FileSpreadsheet
 } from "lucide-react";
 import { seedEmployees, seedConfig } from "./domain/seed";
 import { generate, buildOpenShifts } from "./domain/generator";
 import { validate } from "./domain/validate";
 import { fmtHours } from "./domain/time";
+import { buildRosterWorkbook } from "./excel/rosterWorkbook";
 import { StaffTab } from "./components/StaffTab";
 import { CoverageTab } from "./components/CoverageTab";
 import { ScheduleTab } from "./components/ScheduleTab";
@@ -65,6 +66,21 @@ export default function App() {
     const a = document.createElement("a");
     a.href = url;
     a.download = `roster-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadExcel = async () => {
+    if (!result) return;
+    const workbook = await buildRosterWorkbook(employees, config, result.shifts);
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Horarios-semana-${new Date().toISOString().slice(0, 10)}.xlsx`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -156,6 +172,14 @@ export default function App() {
             );
           })}
           <div className="ml-auto flex items-center gap-3 py-2">
+            <button
+              onClick={downloadExcel}
+              disabled={!result}
+              title={result ? undefined : "Build the week first"}
+              className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-slate-500"
+            >
+              <FileSpreadsheet className="h-3.5 w-3.5" /> Download Excel
+            </button>
             <button
               onClick={downloadBackup}
               className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800"
