@@ -1,31 +1,55 @@
 /**
- * The artifact runtime provides window.storage (a server-side key-value store).
- * Running locally there is no such thing, so this stands in for it using
- * localStorage. Same shape, so App.jsx needs no changes and still works in both
- * places. Swap the four functions for fetch() calls when you move to a real API.
+ * Backs window.storage with Supabase Postgres instead of localStorage, so the
+ * roster is shared across every browser instead of stuck on one machine. Same
+ * get/set/list/delete shape as before, so App.jsx needs no changes.
+ *
+ * Requires a `kv_store` table — see supabase/schema.sql — and
+ * VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY in .env (see .env.example).
  */
-const KEY_PREFIX = "shift-planner:";
+import { createClient } from "@supabase/supabase-js";
+
+const url = import.meta.env.VITE_SUPABASE_URL;
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!url || !anonKey) {
+  throw new Error(
+    "Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY. Copy .env.example to .env and fill in your Supabase project's values."
+  );
+}
+
+const supabase = createClient(url, anonKey);
 
 if (!window.storage) {
   window.storage = {
     async get(key) {
-      const raw = localStorage.getItem(KEY_PREFIX + key);
-      if (raw === null) throw new Error(`No value stored for "${key}"`);
-      return { key, value: raw, shared: false };
+      const { data, error } = await supabase
+        .from("kv_store")
+        .select("value")
+        .eq("key", key)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) throw new Error(`No value stored for "${key}"`);
+      return { key, value: data.value, shared: true };
     },
     async set(key, value) {
-      localStorage.setItem(KEY_PREFIX + key, value);
-      return { key, value, shared: false };
+      const { error } = await supabase
+        .from("kv_store")
+        .upsert({ key, value, updated_at: new Date().toISOString() });
+      if (error) throw error;
+      return { key, value, shared: true };
     },
     async delete(key) {
-      localStorage.removeItem(KEY_PREFIX + key);
-      return { key, deleted: true, shared: false };
+      const { error } = await supabase.from("kv_store").delete().eq("key", key);
+      if (error) throw error;
+      return { key, deleted: true, shared: true };
     },
     async list(prefix = "") {
-      const keys = Object.keys(localStorage)
-        .filter((k) => k.startsWith(KEY_PREFIX + prefix))
-        .map((k) => k.slice(KEY_PREFIX.length));
-      return { keys, prefix, shared: false };
+      const { data, error } = await supabase
+        .from("kv_store")
+        .select("key")
+        .like("key", `${prefix}%`);
+      if (error) throw error;
+      return { keys: data.map((row) => row.key), prefix, shared: true };
     },
   };
 }
