@@ -117,7 +117,7 @@ export function ScheduleTab({ employees, config, result, onGenerate }) {
                       <td className="sticky left-0 z-10 whitespace-nowrap bg-white px-3 py-2 font-medium text-slate-800">
                         {e.name}
                         {e.homeSite !== activeSite && (
-                          <span className="ml-1.5 text-xs font-normal text-slate-400">visiting</span>
+                          <span className="ml-1.5 text-xs font-normal text-slate-500">visiting</span>
                         )}
                       </td>
                       {DAYS.map((d) => {
@@ -125,9 +125,9 @@ export function ScheduleTab({ employees, config, result, onGenerate }) {
                         const elsewhere = st.byDay[d].filter((s) => s.siteId !== activeSite);
                         if (here.length === 0) {
                           return (
-                            <td key={d} className="px-3 py-2 text-xs text-slate-400">
+                            <td key={d} className="px-3 py-2 text-xs text-slate-500">
                               {e.daysOff.includes(d) ? (
-                                <span className="text-rose-400">off</span>
+                                <span className="text-rose-600">off</span>
                               ) : elsewhere.length > 0 ? (
                                 <span>
                                   at {SITES.find((s) => s.id === elsewhere[0].siteId).name}
@@ -222,16 +222,16 @@ function IssueList({ title, items, empty, tone }) {
   };
   return (
     <div className={`rounded-lg border p-4 ${toneMap[tone]}`}>
-      <h3 className="mb-2 flex items-center gap-1.5 text-sm font-semibold">
+      <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold">
         {items.length > 0 ? (
           <AlertTriangle className="h-4 w-4" />
         ) : (
           <Check className="h-4 w-4" />
         )}
         {title}
-      </h3>
+      </h2>
       {items.length === 0 ? (
-        <p className="text-sm opacity-75">{empty}</p>
+        <p className="text-sm">{empty}</p>
       ) : (
         <ul className="space-y-1.5 text-sm">
           {items.slice(0, 12).map((i, n) => (
@@ -241,7 +241,7 @@ function IssueList({ title, items, empty, tone }) {
             </li>
           ))}
           {items.length > 12 && (
-            <li className="pl-5 opacity-70">and {items.length - 12} more</li>
+            <li className="pl-5">and {items.length - 12} more</li>
           )}
         </ul>
       )}

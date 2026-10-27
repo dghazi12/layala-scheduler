@@ -114,7 +114,7 @@ export function StaffTab({ employees, setEmployees }) {
                 <th className="px-4 py-2 font-medium">Hired at</th>
                 <th className="px-4 py-2 font-medium">Weekly hours</th>
                 <th className="px-4 py-2 font-medium">Days off</th>
-                <th className="px-4 py-2"></th>
+                <th className="px-4 py-2"><span className="sr-only">Remove</span></th>
               </tr>
             </thead>
             <tbody>
@@ -122,6 +122,7 @@ export function StaffTab({ employees, setEmployees }) {
                 <tr key={e.id} className="border-b border-slate-100 last:border-0 align-middle">
                   <td className="px-4 py-2">
                     <input
+                      aria-label="Name"
                       className="w-40 rounded border border-transparent bg-transparent px-1 py-1 hover:border-slate-300 focus:border-teal-600 focus:outline-none"
                       value={e.name}
                       onChange={(ev) => update(e.id, { name: ev.target.value })}
@@ -129,6 +130,7 @@ export function StaffTab({ employees, setEmployees }) {
                   </td>
                   <td className="px-4 py-2">
                     <select
+                      aria-label="Position"
                       className="rounded border border-transparent bg-transparent px-1 py-1 hover:border-slate-300 focus:border-teal-600 focus:outline-none"
                       value={e.role}
                       onChange={(ev) => update(e.id, { role: ev.target.value })}
@@ -140,6 +142,7 @@ export function StaffTab({ employees, setEmployees }) {
                   </td>
                   <td className="px-4 py-2">
                     <select
+                      aria-label="Hired at"
                       className="rounded border border-transparent bg-transparent px-1 py-1 hover:border-slate-300 focus:border-teal-600 focus:outline-none"
                       value={e.homeSite}
                       onChange={(ev) => update(e.id, { homeSite: ev.target.value })}
@@ -151,6 +154,7 @@ export function StaffTab({ employees, setEmployees }) {
                   </td>
                   <td className="px-4 py-2">
                     <input
+                      aria-label="Weekly hours"
                       type="number"
                       min="0"
                       max="60"

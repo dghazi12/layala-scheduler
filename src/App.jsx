@@ -190,7 +190,7 @@ export default function App() {
               <Upload className="h-3.5 w-3.5" /> Restore
               <input type="file" accept="application/json" className="hidden" onChange={restoreBackup} />
             </label>
-            <span className="flex items-center gap-1 text-xs text-slate-400">
+            <span className="flex items-center gap-1 text-xs text-slate-500">
               <Save className="h-3.5 w-3.5" />
               {saveState === "saving" ? "Saving" : saveState === "error" ? "Not saved" : "Saved"}
             </span>
